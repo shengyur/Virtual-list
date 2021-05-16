@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #list-container{
+            border: 1px solid red;
+            width: 410px;
+            height: 500px;
+            position: relative;
+        }
+        #list-view-phantom{
+            width: 400px;
+            background-color: pink;
+            height: 5000px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <!-- 可视区域的容器 -->
+    <div id="list-container">
+        <!-- 总列表占位，形成滚动 -->
+        <div id="list-view-phantom"></div>
+        <!-- 实际渲染的列表项 -->
+        <div id="list-view-content">
+            <!-- item1 -->
+            <!-- item2 -->
+            <!-- item3 -->
+        </div>  
+    </div>
+</body>
+<script>
+document.getElementById('list-container').addEventListener('scroll', function(value) {
+    const top = document.getElementById('list-container').scrollTop
+
+    console.log(top,top2)
+})
+
+</script>
+</html>

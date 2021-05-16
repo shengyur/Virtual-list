@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id="button">点我</button>
+    <ul id="container"></ul>
+</body>
+<script>
+    document.getElementById('button').addEventListener('click', function() {
+        let now = Date.now()
+        const total = 100000
+        let ul = document.getElementById('container')
+        for (let i = 0; i< total ;i++) {
+            let li = document.createElement('li')
+            li.innerText = ~~(Math.random() * total)
+            // li.innerText = Math.random()
+            ul.appendChild(li)
+        }
+        console.log('js运行时间：', Date.now() - now)
+        setTimeout(() => {
+        console.log('总运行时间：', Date.now() - now)
+        }, 0)
+    })
+     
+</script>
+</html>
