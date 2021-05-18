@@ -3,7 +3,7 @@
     <div ref="list" class="infinite-list-container" @scroll="scrollEvent($event)">
     <div class="infinite-list-phantom" :style="{
         height: `${listHeight}px`
-    }"></div>
+    }"></div> 
     <div class="infinite-list" :style="{ transform: getTransform }">
       <div ref="items"
         class="infinite-list-item" 
@@ -35,13 +35,17 @@ export default {
             type: Number,
             default: 200,
         },
+        estimatedItemSize: {
+            type: Number,
+        },
     },
     computed: {
         getTransform() {
             return `translate3d(0, ${this.startOffset}px,0)`
         },
         listHeight() {
-            return this.listData.length * this.itemSize
+            // return this.listData.length * this.itemSize
+            return this.positions[this.positions.length-1].bottom
         },
         visibleCount() {
             return Math.ceil(this.screenHeight / this.itemSize)
@@ -56,7 +60,28 @@ export default {
             startOffset: 0,
             start: 0,
             end: null,
+            positions: [
+
+            ]
         }
+    },
+    updated() {
+        let nodes = this.$refs.items
+        nodes.forEach((node) => {
+            let rect = node.getBoundingClientRect()
+            let height = rect.height
+            let index = + node.id.slice(1)
+            let oldHeight = this.positions[index].height
+            let updateValue = oldHeight - height
+            if (updateValue) {
+                this.positions[index].bottom = this.positions[index].bottom - updateValue
+                this.positions[index].height = height
+                for(let k= index +1; k< this.positions.length; k++){
+                    this.positions[k].top = this.positions[k-1].bottom
+                    this.positions[k].bottom = this.positions[k].bottom - updateValue
+                }
+            }
+        })
     },
     mounted() {
         this.screenHeight = this.$el.clientHeight
@@ -71,10 +96,53 @@ export default {
 
             this.end = this.start + this.visibleCount
 
-            this.startOffset = scrollTop - (scrollTop % this.itemSize)
-            console.log('startOffset',scrollTop,  (scrollTop % this.itemSize), this.startOffset)
-        },
+            // this.startOffset = scrollTop - (scrollTop % this.itemSize)
 
+            console.log('startOffset',scrollTop,  (scrollTop % this.itemSize), this.startOffset)
+            if(this.start >= 1){
+                this.startOffset = this.positions[this.start - 1].bottom
+            }else{
+                this.startOffset = 0;
+            }
+        },
+        initPositions() {
+            this.positions = this.listData.map((item,index) => {
+                return {
+                    index,
+                    height: this.estimatedItemSize,
+                    top: index * this.estimatedItemSize,
+                    bottom: (index + 1) * this.estimatedItemSize
+                }
+            })
+        },
+        //二分法查找
+        binarySearch(list,value){
+            let start = 0;
+            let end = list.length - 1;
+            let tempIndex = null;
+            while(start <= end){
+                let midIndex = parseInt((start + end)/2);
+                let midValue = list[midIndex].bottom;
+                if(midValue === value){
+                return midIndex + 1;
+                }else if(midValue < value){
+                start = midIndex + 1;
+                }else if(midValue > value){
+                if(tempIndex === null || tempIndex > midIndex){
+                    tempIndex = midIndex;
+                }
+                end = end - 1;
+                }
+            }
+            return tempIndex;
+        },
+        //获取列表起始索引
+        getStartIndex(scrollTop = 0){
+            //二分法查找
+            return this.binarySearch(this.positions,scrollTop)
+            // let item = this.positions.find(i => i && i.bottom > scrollTop);
+            // return item.index;
+        }
     },
 }
 </script>
